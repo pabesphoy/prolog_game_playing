@@ -70,22 +70,34 @@ def abort(id):
 
 
 
-game = read_file_lines("tictactoe.pl")
-match = Match("m3", 10, 10, game, "white")
-match = match.simulate(["nil"])
 
-while not match.findterminalp():
-    move = []
-    for role in match.roles:
-        if role == "white":
-            move.append(match.findlegalminimax(role))
-        else:
-            move.append(match.findlegalr(role))
-    print(move)
-    match = match.simulate(move)
-    match.print_state()
-    print("------------------------------------------------------------------------")
 
+marcador = {"white":0,"black":0,"empate":0}
+while True:
+    game = read_file_lines("tictactoe.pl")
+    match = Match("m3", 10, 10, game, "white")
+    match = match.simulate(["nil"])
+    while not match.findterminalp():
+        move = []
+        for role in match.roles:
+            if role == "white":
+                move.append(match.findlegalminimax(role))
+            else:
+                move.append(match.findlegalr(role))
+        print(move)
+        match.print_state()
+        match = match.simulate(move)
+        print("------------------------------------------------------------------------")
+    if match.findreward("white") == 100:
+        marcador["white"] = marcador["white"] + 1
+    elif match.findreward("white") == 0:
+        marcador["black"] = marcador["black"] + 1
+    elif match.findreward("white") == 50:
+        marcador["empates"] = marcador["empates"] + 1
+    else:
+        raise Exception("Puntuacion no esperada: ", match.findreward("white"))
+        
+    print(marcador)
 
 
 '''
@@ -102,14 +114,5 @@ while not match.findterminalp():
     print("------------------------------------------------------------------------")
 
 
-if match.findreward("white") == 100:
-    marcador["white"] = marcador["white"] + 1
-elif match.findreward("white") == 0:
-    marcador["black"] = marcador["black"] + 1
-elif match.findreward("white") == 50:
-    marcador["empates"] = marcador["empates"] + 1
-else:
-    raise Exception("Puntuacion no esperada: ", match.findreward("white"))
-    
-print(marcador)
+
 '''

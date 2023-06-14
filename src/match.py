@@ -1,9 +1,10 @@
 from pyswip import Prolog
-from pyswip.prolog import PrologError
+from pyswip.prolog import PrologError, cleanupProlog
 import os
 from random import randint
 from minimax import findbestmove
 
+prolog = None
 
 class Match:
     def __init__(self, id, sc, pc, game, role, current_state = None):
@@ -27,14 +28,14 @@ class Match:
     
     def get_rules(self, game):
         rules = Prolog()
+        rules.query("retractall(_)")
         for statement in game.split("."):
             if statement != "":
                 rules.assertz(statement)
         return rules
-    
-    def clear_statements2(self, retracts):
-        for r in retracts:
-            self.game.retract(r)
+        
+        
+        prolog.clea
 
     '''
     def generate_file(self):
@@ -85,7 +86,8 @@ class Match:
         for legal_action in self.game.query("legal("+role+", Y)"):
             action = "does("+role+","+legal_action["Y"]+")"
             res.append(action)
-        self.clear_statements2(self.current_state)
+        self.game.retractall("true(_)")
+        self.game.retractall("does(_, _)")
         return res
     
     def simulate(self, move):
@@ -104,8 +106,7 @@ class Match:
         for n in self.game.query("next(X)"):
             next = n["X"]
             res.add("true("+next+")")
-        self.clear_statements2(statements)
-        #self.check_no_statements()
+        self.game.retractall("true(_)")
         return list(res)
 
     def findreward(self, role):
@@ -115,7 +116,7 @@ class Match:
         for goal in self.game.query("goal("+role+",X)"):
             result = int(goal["X"])
             break
-        self.clear_statements2(self.current_state)
+        self.game.retractall("true(_)")
         #self.check_no_statements()
         return result
 
@@ -125,11 +126,30 @@ class Match:
                 self.game.assertz(statement)
             query = self.game.query("terminal")
             res = bool(list(query))
-            self.clear_statements2(self.current_state)
+            self.game.retractall("true(_)")
             return res
         except:
             return False
-    
+        
+    def print_state(self):
+        res = "|"
+        i = 0
+        for state in sorted(self.current_state):
+            if state[-3] == "b":
+                res += "  |"
+                i+=1
+            elif state[-3] == "x":
+                res += "X |"
+                i+=1
+            elif state[-3] == "o":
+                res += "O |"
+                i+=1
+            if(i % 3 == 0):
+                res+="\n|"
+        print(res[:-4])
+        print("¿Es terminal?: ", self.findterminalp())
+        for role in self.roles: 
+            print(role, "reward: ", self.findreward(role))
     
 
     
