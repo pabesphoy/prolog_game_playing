@@ -36,38 +36,44 @@ legal(black, noop) :- true(control(white)).
 
 
 next(cell(M,N,x)) :- does(white,mark(M,N)) , true(cell(M,N,b)).
-next(cell(M,N,x)) :- true(cell(M,N,x)).
 next(cell(M,N,o)) :- does(black,mark(M,N)) , true(cell(M,N,b)).
-next(cell(M,N,o)) :- true(cell(M,N,o)).
+next(cell(M,N,W) :- true(cell(M,N,W)) , distinct(W,b)).
 next(cell(M,N,b)) :- does(_, mark(J,_)) , true(cell(M,N,b)) , not(M = J).
 next(cell(M,N,b)) :- does(_, mark(_,K)) ,true(cell(M,N,b)) , not(N = K).
 next(control(white)) :- true(control(black)).
 next(control(black)) :- true(control(white)).
 
-goal(white, 100) :- line(white) , \+line(black).
-goal(white, 50) :- \+line(white) , \+line(black).
-goal(white, 0) :- \+line(white) , line(black).
-goal(black, 0) :- goal(white, 100).
-goal(black, 50) :- goal(white, 50).
-goal(black, 100) :- goal(white, 0).
+goal(white, 100) :- line(x) , \+line(o).
+goal(white, 50) :- \+line(x) , \+line(o).
+goal(white, 0) :- \+line(x) , line(o).
 
 line(W) :- row(W).
 line(W) :- column(W).
 line(W) :- diagonal(W).
 
 row(white) :- true(cell(M,1,x)) , true(cell(M,2,x)) , true(cell(M,3,x)).
-row(black) :- true(cell(M,1,o)) , true(cell(M,2,o)) , true(cell(M,3,o)).
 column(white) :- true(cell(1,N,x)) , true(cell(2,N,x)) , true(cell(3,N,x)).
-column(black) :- true(cell(1,N,o)) , true(cell(2,N,o)) , true(cell(3,N,o)).
 diagonal(white) :- true(cell(1,1,x)) , true(cell(2,2,x)) , true(cell(3,3,x)).
 diagonal(white) :- true(cell(3,1,x)) , true(cell(2,2,x)) , true(cell(1,3,x)).
+row(black) :- true(cell(M,1,o)) , true(cell(M,2,o)) , true(cell(M,3,o)).
+column(black) :- true(cell(1,N,o)) , true(cell(2,N,o)) , true(cell(3,N,o)).
 diagonal(black) :- true(cell(1,1,o)) , true(cell(2,2,o)) , true(cell(3,3,o)).
 diagonal(black) :- true(cell(3,1,o)) , true(cell(2,2,o)) , true(cell(1,3,o)).
 
 
 terminal :- line(_).
-terminal :- \+open.
+terminal  :- \+open.
 
-open :- true(cell(_,_,b)).
+open:- true(cell(_,_,b)).
 
 
+true(cell(1, 1, b)).
+true(cell(1, 2, b)).
+true(cell(1, 3, b)).
+true(cell(2, 1, b)).
+true(cell(2, 2, b)).
+true(cell(2, 3, b)).
+true(cell(3, 1, b)).
+true(cell(3, 2, b)).
+true(cell(3, 3, b)).
+true(control(white)).
