@@ -107,6 +107,7 @@ class Match:
             next = n["X"]
             res.add("true("+next+")")
         self.game.retractall("true(_)")
+        self.game.retractall("does(_, _)")
         return list(res)
 
     def findreward(self, role):
@@ -117,6 +118,7 @@ class Match:
             result = int(goal["X"])
             break
         self.game.retractall("true(_)")
+        self.game.retractall("does(_,_)")
         #self.check_no_statements()
         return result
 
@@ -127,11 +129,19 @@ class Match:
             query = self.game.query("terminal")
             res = bool(list(query))
             self.game.retractall("true(_)")
+            self.game.retractall("does(_,_)")
             return res
         except:
             return False
         
     def print_state(self):
+        self.print_board()
+        print("¿Es terminal?: ", self.findterminalp())
+        for role in self.roles: 
+            print(role, "reward: ", self.findreward(role))
+        print(self.current_state)
+    
+    def print_board(self):
         res = "|"
         i = 0
         for state in sorted(self.current_state):
@@ -147,11 +157,6 @@ class Match:
             if(i % 3 == 0):
                 res+="\n|"
         print(res[:-4])
-        print("¿Es terminal?: ", self.findterminalp())
-        for role in self.roles: 
-            print(role, "reward: ", self.findreward(role))
-    
-
     
     '''
     
@@ -182,16 +187,8 @@ class Match:
         print("¿Es terminal?: ", self.findterminalp())
         for role in self.roles: 
             print(role, "reward: ", self.findreward(role))
+    '''
     
-    def check_no_statements(self):
-        try:
-            for true in self.game.query("true(X)"):
-                raise Exception("Statement existente")
-            for does in self.game.query("does(X,Y)"):
-                raise Exception("Statement existente")
-        except PrologError as prologerror:
-            #print("Warning: retracting with no does")
-            pass
 
     def print_statements(self):
         try:
@@ -209,4 +206,13 @@ class Match:
                 print("NO DOES STATEMENTS")
         except PrologError as prologerror:
             print("NO STATEMENTS")
-             '''
+             
+    def check_no_statements(self):
+        try:
+            for true in self.game.query("true(X)"):
+                raise Exception("Statement existente")
+            for does in self.game.query("does(X,Y)"):
+                raise Exception("Statement existente")
+        except PrologError as prologerror:
+            #print("Warning: retracting with no does")
+            pass
