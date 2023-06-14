@@ -66,65 +66,50 @@ def stop(id, move):
 def abort(id):
     return "done"
 
-def print_state(match):
-    res = "|"
-    i = 0
-    for state in sorted(match.current_state):
-        if state[-3] == "b":
-            res += "  |"
-            i+=1
-        elif state[-3] == "x":
-            res += "X |"
-            i+=1
-        elif state[-3] == "o":
-            res += "O |"
-            i+=1
-        if(i % 3 == 0):
-            res+="\n|"
-    print(res[:-4])
-    print("¿Es terminal?: ", match.findterminalp())
-    for role in match.roles: 
-        print(role, "reward: ", match.findreward(role))
 
 
-marcador = {"white":0, "black": 0, "empates":0}
-while(True):
-
-    game = read_file_lines("tictactoe.pl")
-    match = Match("m3", 10, 10, game, "white")
-    match = match.simulate(["nil"])
-    '''
-    match = match.simulate(['does(white,mark(2, 2))', 'does(black,noop)'])
-    match = match.simulate(['does(white,noop)', 'does(black,mark(1, 2))'])
-    match = match.simulate(['does(white,mark(3, 3))', 'does(black,noop)'])
-    match = match.simulate(['does(white,noop)', 'does(black,mark(2, 1))'])
-    print_state(match)
-    print(match.findlegalminimax("white"))
-    '''
 
 
-    while not match.findterminalp():
-        move = []
-        for role in match.roles:
-            if role == "white":
-                #print("STATE WHITE:", match.current_state)
-                move.append(match.findlegalminimax(role))
-            else:
-                #print("STATE BLACK:", match.current_state)
-                move.append(match.findlegalx(role))
-        #print(move)
-        match = match.simulate(move)
-        #print_state(match)
-        #print("------------------")
-    if match.findreward("white") == 100:
-        marcador["white"] = marcador["white"] + 1
-    elif match.findreward("white") == 0:
-        marcador["black"] = marcador["black"] + 1
-    elif match.findreward("white") == 50:
-        marcador["empates"] = marcador["empates"] + 1
-    else:
-        raise Exception("Puntuacion no esperada")
+game = read_file_lines("tictactoe.pl")
+match = Match("m3", 10, 10, game, "white")
+match = match.simulate(["nil"])
+
+while not match.findterminalp():
+    move = []
+    for role in match.roles:
+        if role == "white":
+            move.append(match.findlegalminimax(role))
+        else:
+            move.append(match.findlegalr(role))
+    print(move)
+    match = match.simulate(move)
+    match.print_state()
+    print("------------------------------------------------------------------------")
+
+
+
+'''
+while not match.findterminalp():
+    move = []
+    for role in match.roles:
+        if role == "white":
+            move.append(match.findlegalminimax(role))
+        else:
+            move.append(match.findlegalr(role))
+    print(move)
+    match = match.simulate(move)
+    match.print_state()
+    print("------------------------------------------------------------------------")
+
+
+if match.findreward("white") == 100:
+    marcador["white"] = marcador["white"] + 1
+elif match.findreward("white") == 0:
+    marcador["black"] = marcador["black"] + 1
+elif match.findreward("white") == 50:
+    marcador["empates"] = marcador["empates"] + 1
+else:
+    raise Exception("Puntuacion no esperada: ", match.findreward("white"))
     
-    print(marcador)
-
-
+print(marcador)
+'''

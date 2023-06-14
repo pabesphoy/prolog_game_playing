@@ -32,24 +32,8 @@ class Match:
                 rules.assertz(statement)
         return rules
     
-    def clear_statements(self):
-        retracts = []
-        try:
-            print("Primer try")
-            for true in self.game.query("true(X)"):
-                retracts.append("true("+true["X"]+")")
-        except PrologError as prologerror:
-            #print("Warning: retracting with no trues")
-            pass
-        try:
-            print("Segundo try")
-            for does in self.game.query("does(X,Y)"):
-                retracts.append("does("+true["X"]+","+does["Y"]+")")
-        except PrologError as prologerror:
-            #print("Warning: retracting with no does")
-            pass
+    def clear_statements2(self, retracts):
         for r in retracts:
-            print("Retractando", r)
             self.game.retract(r)
 
     '''
@@ -86,51 +70,25 @@ class Match:
     
     def findlegalr(self, role):
         actions = self.findlegals(role)
-        if 'does(black,noop)' in actions and len(actions) > 1:
-            print("\n\n\n\n\n\n\n")
-            print("Opciones de", role, ":", actions)
-            print("¿Hay statements verdaderos? ", bool(list(self.game.query("true(X)"))))
-            try:
-                for true in self.game.query("true(X)"):
-                    print("true(" + true["X"] + ")")
-            except:
-                print("NO HAY STATEMENTS QUE SEAN TRUE")
-        
         return actions[randint(0, len(actions)-1)]
     
     def findlegalmcts(self, role):
         return 
     
     def findlegalminimax(self, role):
-        return findbestmove(self, role)
+        return findbestmove(role, self)
 
     def findlegals(self, role):
         res = []
-        self.clear_statements()
-        for statement in sorted(self.current_state):
-            try:
-                if not bool(list(self.game.query(statement))):
-                    self.game.assertz(statement)
-            except:
-                self.game.assertz(statement)
-        #for true in self.game.query("true(X)"):
-        #    print(true["X"])
-        #print("COMPROBANDO ACCIONES DE " + role)
-        #print("Es el turno de " + role + "? " + str(bool(list(self.game.query("true(control("+role+"))")))))
+        for statement in self.current_state:
+            self.game.assertz(statement)
         for legal_action in self.game.query("legal("+role+", Y)"):
             action = "does("+role+","+legal_action["Y"]+")"
-            if action not in res:
-                res.append(action)
-                #input(action["Y"])
-        
-        
-        #print("Legales para ", role, ":", res)
+            res.append(action)
+        self.clear_statements2(self.current_state)
         return res
     
     def simulate(self, move):
-        print("A punto de limpiar statements")
-        self.clear_statements()
-        print("Statements limpios")
         if move == ['nil'] or move == 'nil':
             return Match(self.id, self.sc, self.pc, self.game, self.role, current_state=self.findinits())
         else:
@@ -146,24 +104,28 @@ class Match:
         for n in self.game.query("next(X)"):
             next = n["X"]
             res.add("true("+next+")")
-        [self.game.retract(s) for s in statements]
+        self.clear_statements2(statements)
+        #self.check_no_statements()
         return list(res)
 
     def findreward(self, role):
+        result = -1
         for true_statement in self.current_state:
             self.game.assertz(true_statement)
         for goal in self.game.query("goal("+role+",X)"):
-            return int(goal["X"])
-        return -1
+            result = int(goal["X"])
+            break
+        self.clear_statements2(self.current_state)
+        #self.check_no_statements()
+        return result
 
     def findterminalp(self):
         try:
-            statements = []
-            statements.extend(self.current_state)
-            for statement in statements:
+            for statement in self.current_state:
                 self.game.assertz(statement)
             query = self.game.query("terminal")
             res = bool(list(query))
+            self.clear_statements2(self.current_state)
             return res
         except:
             return False
@@ -178,8 +140,53 @@ class Match:
 
     def findactions(role, game):
         return 0 #TODO: DE MOMENTO NO LO IMPLEMENTAREMOS POR INUTILIDAD
-    '''
+   
     
 
+    def print_state(self):
+        res = "|"
+        i = 0
+        for state in sorted(self.current_state):
+            if state[-3] == "b":
+                res += "  |"
+                i+=1
+            elif state[-3] == "x":
+                res += "X |"
+                i+=1
+            elif state[-3] == "o":
+                res += "O |"
+                i+=1
+            if(i % 3 == 0):
+                res+="\n|"
+        print(res[:-4])
+        print("¿Es terminal?: ", self.findterminalp())
+        for role in self.roles: 
+            print(role, "reward: ", self.findreward(role))
     
-    
+    def check_no_statements(self):
+        try:
+            for true in self.game.query("true(X)"):
+                raise Exception("Statement existente")
+            for does in self.game.query("does(X,Y)"):
+                raise Exception("Statement existente")
+        except PrologError as prologerror:
+            #print("Warning: retracting with no does")
+            pass
+
+    def print_statements(self):
+        try:
+            q_true = self.game.query("true(X)")
+            if bool(list(q_true)):
+                for true in q_true:
+                    print("true("+true["X"]+")")
+            else:
+                print("NO TRUE STATEMENTS")
+            q_does = self.game.query("does(X,Y)")
+            if bool(list(q_does)):
+                for does in q_does:
+                    print("does("+does["X"]+"," + does["Y"] + ")")
+            else:
+                print("NO DOES STATEMENTS")
+        except PrologError as prologerror:
+            print("NO STATEMENTS")
+             '''
