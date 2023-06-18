@@ -1,4 +1,5 @@
 from match import Match
+import Montecarlo
 
 matches = []
 
@@ -65,11 +66,3 @@ def stop(id, move):
 
 def abort(id):
     return "done"
-
-game = read_file_lines("tictactoe.pl")
-match = Match("m3", 10, 10, game, "white")
-match = match.simulate(["nil"])
-match = match.simulate(['does(white,mark(2, 2))', 'does(black, noop)'])
-match = match.simulate(['does(white,noop)', 'does(black, mark(1, 2))'])
-match.print_state()
-print(match.findlegalminimax("white"))

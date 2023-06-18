@@ -7,16 +7,13 @@ def findbestmove(role, match):
     move_score = {}
     for i in range(0, len(actions)):
         result = minscore(role, actions[i], match)
+        print(result)
         move_score[actions[i]] = result
-        '''
         if result == 100:
-            print(move_score)
             return actions[i]
-        '''
         if result > score:
             score = result
             action = actions[i]
-    print(move_score)
     return action
 
 def minscore(role, action, match):
@@ -27,9 +24,11 @@ def minscore(role, action, match):
         move = [action, actions[i]]
         newmatch = match.simulate(move)
         result = maxscore(role, newmatch)
+        '''
         if result == 0:
             return 0
-        elif result < score:
+        '''
+        if result < score:
             score = result
     return score
     
