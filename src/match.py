@@ -99,9 +99,6 @@ class Match:
         actions = self.findlegals(role)
         return actions[randint(0, len(actions)-1)]
     
-    def findlegalmcts(self, role):
-        return 
-    
     def findlegalminimax(self, role):
         return findbestmove(role, self)
 
@@ -153,13 +150,13 @@ class Match:
             return res
         
     def print_state(self):
-        self.print_board()
+        self.print_tictactoe_board()
         print("¿Es terminal?: ", self.findterminalp())
         for role in self.roles: 
             print(role, "reward: ", self.findreward(role))
         #print(self.current_state)
     
-    def print_board(self):
+    def print_tictactoe_board(self):
         res = "|"
         i = 0
         for state in sorted(self.current_state):
@@ -176,38 +173,21 @@ class Match:
                 res+="\n|"
         print(res[:-4])
     
+    def print_connect_4_board(self):
+        rows = []
+        for i in range(1,7):
+            row = "|"
+            for j in range(1,9):
+                if f"true(cell({i}, {j}, red))" in self.current_state:
+                    row += "r |"
+                elif f"true(cell({i}, {j}, black))" in self.current_state:
+                    row += "b |"
+                else:
+                    row += "  |"
+            rows.append(row)
+        for i in range(len(rows)-1, -1, -1):
+            print(rows[i])
     '''
-    
-    def findpropositions(game):
-        return 0 #TODO: DE MOMENTO NO LO IMPLEMENTAREMOS POR INUTILIDAD
-
-    def findactions(role, game):
-        return 0 #TODO: DE MOMENTO NO LO IMPLEMENTAREMOS POR INUTILIDAD
-   
-    
-
-    def print_state(self):
-        res = "|"
-        i = 0
-        for state in sorted(self.current_state):
-            if state[-3] == "b":
-                res += "  |"
-                i+=1
-            elif state[-3] == "x":
-                res += "X |"
-                i+=1
-            elif state[-3] == "o":
-                res += "O |"
-                i+=1
-            if(i % 3 == 0):
-                res+="\n|"
-        print(res[:-4])
-        print("¿Es terminal?: ", self.findterminalp())
-        for role in self.roles: 
-            print(role, "reward: ", self.findreward(role))
-   
-    
-
     def print_statements(self):
         try:
             q_true = self.game.query("true(X)")
