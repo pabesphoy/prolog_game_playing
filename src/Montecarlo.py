@@ -1,6 +1,3 @@
-from match import Match
-from random import randint
-from pyswip import Prolog
 import time
 
 class Montecarlo:
@@ -8,6 +5,7 @@ class Montecarlo:
     def __init__(self, limit, count):
         self.limit = limit
         self.count = count
+        self.transposition_table = {}
 
     def findbestmove(self, role, match, time_limit):
         actions = match.findlegals(role)
@@ -17,55 +15,58 @@ class Montecarlo:
         if len(actions) == 1:
             return action
         for i in range(0, len(actions)):
-            print(f"Comprobando acción {i} para {role}, tiempo pasado: {time.time() - start_time}")
-            result = self.minscore(role, actions[i], match, 0)
+            print(f"Comprobando acción {i}, {actions[i]} para {role}, tiempo pasado: {time.time() - start_time}")
+            result = self.minscore(role, actions[i], match, 0, 0, 100)
             if result == 100:
                 return actions[i]
-                
-            if result > score:
+            elif result > score:
                 score = result
                 action = actions[i]
+            print(f"Score obtenido para accion: {result}")
         return action
 
-    def minscore(self, role, action, match, level):
+    def minscore(self, role, action, match, level, alpha, beta):
         opponent = self.findopponent(role, match)
         actions = match.findlegals(opponent)
-        score = 100    
         for i in range(len(actions)):
             move = []
             if role == match.roles[0]:
                 move = [action, actions[i]]
             else:
                 move = [actions[i], action]
-            #if level == 1:
-                #print("Movimiento", i+1, "de", len(actions), move, "| Nivel 1")
+            if level == 1:
+                print("Movimiento", i+1, "de", len(actions), move, "| Nivel 1")
             newmatch = match.simulate(move)
-            result = self.maxscore(role, newmatch, level+1)
-            if result == 0:
-                return 0
-            elif result < score:
-                score = result
-        return score
+            if newmatch.get_state_str() in self.transposition_table:
+                return self.transposition_table[newmatch.get_state_str()]
+            result = self.maxscore(role, newmatch, level+1, alpha, beta)
+            if result < beta:
+                beta = result
+            if beta <=alpha:
+                self.transposition_table[match.get_state_str()] = alpha
+                return alpha
+        self.transposition_table[match.get_state_str()] = beta
+        return beta
         
-    def maxscore(self, role, match, level):
+    def maxscore(self, role, match, level, alpha, beta):
         if match.findterminalp():
-            #print("Encontrado terminal:")
-            #match.print_state()
-            #print(match.findreward(role))
             return match.findreward(role)
+        if match.get_state_str() in self.transposition_table:
+            return self.transposition_table[match.get_state_str()]
         if level >= self.limit:
-            #print("Simulando desde posición:")
-            #match.print_board()
-            return self.montecarlo(role, match, self.count)
+            montecarlo_score = self.montecarlo(role, match, self.count)
+            self.transposition_table[match.get_state_str()] = montecarlo_score
+            return montecarlo_score
         actions = match.findlegals(role)
-        score = 0
         for i in range(len(actions)):
-            result = self.minscore(role, actions[i], match, level)
-            if result == 100:
-                return 100
-            elif result > score:
-                score = result
-        return score
+            result = self.minscore(role, actions[i], match, level, alpha, beta)
+            if result > alpha:
+                alpha = result
+            if alpha >= beta:
+                self.transposition_table[match.get_state_str()] = beta
+                return beta
+        self.transposition_table[match.get_state_str()] = alpha
+        return alpha
 
     def findopponent(self, role, match):
         for other_role in match.roles:
@@ -81,9 +82,12 @@ class Montecarlo:
     def depthcharge(self, role, state):
         if state.findterminalp():
             #print("Estado terminal: ")
-            #state.print_board()
+            #state.print_connect_4_board()
             #print(state.findreward(role))
             return state.findreward(role)
+        #else:
+            #print("No terminal: ")
+            #state.print_connect_4_board()
         move = []
         for i in range(len(state.roles)):
             move.append(state.findlegalr(state.roles[i]))

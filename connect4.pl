@@ -15,13 +15,16 @@ legal(R, noop) :- \+ true(control(R)).
 next(cell(X, Y, red)) :- true(cell(X, Y, red)).
 next(cell(X, Y, black)) :- true(cell(X, Y, black)).
 next(cell(1, Y, P)) :- does(P, drop(Y)), columnempty(Y).
-next(cell(X, Y, P)) :-  Xup is X + 1,
-                        Xdown is X - 1,
-                        does(P, drop(Y)),
+next(cell(X, Y, P)) :-  does(P, drop(Y)),
                         height(X),
                         column(Y),
-                        cellopen(Xup, Y),
-                        \+ cellopen(Xdown, Y).
+                        cellopen(X, Y),
+                        XDOWN is X-1,
+                        XUP is X+1,
+                        \+cellopen(XDOWN, Y),
+                        (cellopen(XUP, Y) ; \+height(XUP)).
+
+                        
 
 
 next(control(black)) :- does(red, drop(_)).
@@ -37,56 +40,46 @@ goal(black, 50) :- \+ line(red), \+ line(black), \+ boardopen.
 goal(black, 0) :- line(red).
 goal(black, 0) :- \+ line(red), \+ line(black), boardopen.
 
-terminal :- line(red).
-terminal :- line(black).
-terminal :- \+ boardopen.
 
-cellopen(X, Y) :- column(X), height(Y), \+ true(cell(X, Y, red)), \+ true(cell(X, Y, black)).
-columnopen(X) :- cellopen(X, 6).
-columnempty(X) :- cellopen(X, 1).
+
+cellopen(X, Y) :- column(Y), height(X), \+ true(cell(X, Y, red)), \+ true(cell(X, Y, black)).
+columnopen(X) :- cellopen(6, X).
+columnempty(X) :- cellopen(1, X).
 boardopen :- columnopen(_).
 
 line(Player) :-
-    cell(X1, Y, Player),
-    succ(X1, X2),
-    succ(X2, X3),
-    succ(X3, X4),
-    cell(X2, Y, Player),
-    cell(X3, Y, Player),
-    cell(X4, Y, Player).
+        true(cell(M, N, Player)),
+        true(cell(M1, N, Player)),
+        true(cell(M2, N, Player)),
+        true(cell(M3, N, Player)),
+        M1 is M + 1,
+        M2 is M1 + 1,
+        M3 is M2 + 1;
+        true(cell(M, N, Player)),
+        true(cell(M, N1, Player)),
+        true(cell(M, N2, Player)),
+        true(cell(M, N3, Player)),
+        N1 is N + 1,
+        N2 is N1 + 1,
+        N3 is N2 + 1;
+        true(cell(M, N, Player)),
+        true(cell(M1, N1, Player)),
+        true(cell(M2, N2, Player)),
+        true(cell(M3, N3, Player)),
+        M1 is M + 1, N1 is N + 1,
+        M2 is M1 + 1, N2 is N1 + 1,
+        M3 is M2 + 1, N3 is N2 + 1;
+        true(cell(M, N, Player)),
+        true(cell(M1, N1, Player)),
+        true(cell(M2, N2, Player)),
+        true(cell(M3, N3, Player)),
+        M1 is M + 1, N1 is N - 1,
+        M2 is M1 + 1, N2 is N1 - 1,
+        M3 is M2 + 1, N3 is N2 - 1.
 
-line(Player) :-
-    cell(X, Y1, Player),
-    succ(Y1, Y2),
-    succ(Y2, Y3),
-    succ(Y3, Y4),
-    cell(X, Y2, Player),
-    cell(X, Y3, Player),
-    cell(X, Y4, Player).
-
-line(Player) :-
-    cell(X1, Y1, Player),
-    succ(X1, X2),
-    succ(X2, X3),
-    succ(X3, X4),
-    succ(Y1, Y2),
-    succ(Y2, Y3),
-    succ(Y3, Y4),
-    cell(X2, Y2, Player),
-    cell(X3, Y3, Player),
-    cell(X4, Y4, Player).
-
-line(Player) :-
-    cell(X1, Y4, Player),
-    succ(X1, X2),
-    succ(X2, X3),
-    succ(X3, X4),
-    succ(Y3, Y4),
-    succ(Y2, Y3),
-    succ(Y1, Y2),
-    cell(X2, Y3, Player),
-    cell(X3, Y2, Player),
-    cell(X4, Y1, Player).
+terminal :- line(red).
+terminal :- line(black).
+terminal :- \+ boardopen.
 
 succ(1, 2).
 succ(2, 3).

@@ -62,25 +62,6 @@ class Match:
         rules.retractall("does(_,_)")
         return rules
 
-
-    '''
-    def generate_file(self):
-        file_name = "game_"+str(self.id)+".pl"
-        if os.path.exists(file_name):
-            os.remove(file_name)
-        with open(file_name, "w") as file:
-            file.write(self.game.replace(".", ".\n").replace('.\n\n', '.\n').replace("\+", "~ "))
-        return file_name
-    
-    def update_file(self):
-        if os.path.exists(self.file_name):
-            os.remove(self.file_name)
-        with open(self.file_name, "w") as file:
-            file.write(self.get_rules().replace(".", ".\n").replace('.\n\n', '.\n').replace("\+", "~ "))
-            file.write(self.current_state)
-
- '''
-
     #GAME METHODS
     
     def findroles(self):
@@ -104,11 +85,12 @@ class Match:
 
     def findlegals(self, role):
         res = []
-        self.assert_true_and_does()
-        for legal_action in self.get_initial_rules().query("legal("+role+", Y)"):
+        rules = self.get_initial_rules()
+        self.assert_true_and_does(rules)
+        for legal_action in rules.query("legal("+role+", Y)"):
             action = "does("+role+","+legal_action["Y"]+")"
             res.append(action)
-        self.retract_true_and_does()
+        self.retract_true_and_does(rules)
         return res
     
     def simulate(self, move):
@@ -119,14 +101,15 @@ class Match:
             return Match(self.id, self.sc, self.pc, self.game, self.role, current_state=self.findnext(move))
 
     def findnext(self, move):
-        res = set()
+        res = []
         rules = self.get_initial_rules()
-        self.assert_true_and_does()
+        self.assert_true_and_does(rules)
         for action in move:
             rules.assertz(action)
         for n in rules.query("next(X)"):
-            res.add("true("+n["X"]+")")
-        self.retract_true_and_does()
+            if not "true("+n["X"]+")" in res:
+                res.append("true("+n["X"]+")")
+        self.retract_true_and_does(rules)
         return list(res)
 
     def findreward(self, role):
@@ -187,30 +170,3 @@ class Match:
             rows.append(row)
         for i in range(len(rows)-1, -1, -1):
             print(rows[i])
-    '''
-    def print_statements(self):
-        try:
-            q_true = self.game.query("true(X)")
-            if bool(list(q_true)):
-                for true in q_true:
-                    print("true("+true["X"]+")")
-            else:
-                print("NO TRUE STATEMENTS")
-            q_does = self.game.query("does(X,Y)")
-            if bool(list(q_does)):
-                for does in q_does:
-                    print("does("+does["X"]+"," + does["Y"] + ")")
-            else:
-                print("NO DOES STATEMENTS")
-        except PrologError as prologerror:
-            print("NO STATEMENTS")
-             
-    def check_no_statements(self):
-        try:
-            for true in self.game.query("true(X)"):
-                raise Exception("Statement existente")
-            for does in self.game.query("does(X,Y)"):
-                raise Exception("Statement existente")
-        except PrologError as prologerror:
-            #print("Warning: retracting with no does")
-            pass '''
