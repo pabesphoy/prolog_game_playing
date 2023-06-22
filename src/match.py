@@ -2,19 +2,18 @@
 from pyswip import Prolog
 from pyswip.prolog import PrologError
 from random import randint
-from minimax import findbestmove
 import os
 
 prolog = None
 
 class Match:
-    def __init__(self, id, sc, pc, game, role, current_state = None):
+    def __init__(self, id, sc, pc, role, current_state = None, game = None):
         self.id = id
         self.sc = sc
         self.pc = pc
         self.role = role
-        self.game = game
-        self.generate_file(game)
+        if game:
+            self.generate_file(game)
         self.roles = self.findroles()
         self.current_state = None
         if current_state:
@@ -38,7 +37,7 @@ class Match:
         if os.path.exists(file_name):
             os.remove(file_name)
         with open(file_name, "w") as file:
-            file.write(self.game.replace(".", ".\n").replace('.\n\n', '.\n'))#.replace("\+", " ~"))
+            file.write(game.replace(".", ".\n").replace('.\n\n', '.\n'))#.replace("\+", " ~"))
         return file_name
     
     def get_initial_rules(self):
@@ -79,9 +78,6 @@ class Match:
     def findlegalr(self, role):
         actions = self.findlegals(role)
         return actions[randint(0, len(actions)-1)]
-    
-    def findlegalminimax(self, role):
-        return findbestmove(role, self)
 
     def findlegals(self, role):
         res = []
@@ -96,9 +92,9 @@ class Match:
     def simulate(self, move):
         self.retract_true_and_does()
         if move == ['nil'] or move == 'nil':
-            return Match(self.id, self.sc, self.pc, self.game, self.role, current_state=self.findinits())
+            return Match(self.id, self.sc, self.pc, self.role, current_state=self.findinits())
         else:
-            return Match(self.id, self.sc, self.pc, self.game, self.role, current_state=self.findnext(move))
+            return Match(self.id, self.sc, self.pc, self.role, current_state=self.findnext(move))
 
     def findnext(self, move):
         res = []
@@ -131,13 +127,6 @@ class Match:
             res = bool(list(query))
             rules = self.retract_true_and_does(rules)
             return res
-        
-    def print_state(self):
-        self.print_tictactoe_board()
-        print("¿Es terminal?: ", self.findterminalp())
-        for role in self.roles: 
-            print(role, "reward: ", self.findreward(role))
-        #print(self.current_state)
     
     def print_tictactoe_board(self):
         res = "|"
