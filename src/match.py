@@ -42,7 +42,7 @@ class Match:
             file.write(game.replace(".", ".\n").replace('.\n\n', '.\n'))
     
     def get_file_name(self):
-        return "game_"+str(self.id)+".pl"
+        return "matches/game_"+str(self.id)+".pl"
 
     def assert_current_state(self):
         for state in self.current_state:

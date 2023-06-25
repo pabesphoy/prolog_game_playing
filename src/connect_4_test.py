@@ -1,6 +1,6 @@
-from match import Match
-from message_handler import read_file_lines
-from Montecarlo import Montecarlo
+from .match import Match
+from .message_handler import read_file_lines
+from .Montecarlo import Montecarlo
 
 def get_random_match_state(role, time_limit):
 

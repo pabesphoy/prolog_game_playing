@@ -1,5 +1,3 @@
-from random import randint
-
 def findbestmove(role, match):
     actions = match.findlegals(role)
     action = actions[0]

@@ -1,10 +1,10 @@
 import time
-from message_handler import read_file_lines
-from match import Match
-from tictactoe_test import print_tictactoe_board
-from chopsticks_test import print_chopsticks_game
-from connect_4_test import print_connect_4_board, get_random_match_state
-from Montecarlo import Montecarlo
+from src.message_handler import read_file_lines
+from src.match import Match
+from src.tictactoe_test import print_tictactoe_board
+from src.chopsticks_test import print_chopsticks_game
+from src.connect_4_test import print_connect_4_board, get_random_match_state
+from src.Montecarlo import Montecarlo
 
 def print_bienvenida():
     print("¡Bienvenid@! Esta es la interfaz de usuario del software de inteligencia artificial utilizando General Game Playing (GGP).")
@@ -286,6 +286,7 @@ if __name__ == "__main__":
     preguntar_reglas(juego)
     prueba = preguntar_prueba(juego)
     ejecutar_prueba(prueba, juego)
+    input("¡Fin del programa! Introduzca cualquier texto para salir.")
     
     
 

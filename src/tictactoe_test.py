@@ -1,6 +1,6 @@
-from match import Match
-from message_handler import read_file_lines
-from Montecarlo import Montecarlo
+from .match import Match
+from .message_handler import read_file_lines
+from .Montecarlo import Montecarlo
 
 def print_tictactoe_board(match):
         res = "|"

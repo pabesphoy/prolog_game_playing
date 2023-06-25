@@ -1,7 +1,6 @@
-from match import Match
-from message_handler import read_file_lines
-from Montecarlo import Montecarlo
-import time
+from .match import Match
+from .message_handler import read_file_lines
+from .Montecarlo import Montecarlo
 
 def print_chopsticks_game(match):
         sorted_state = sorted(match.current_state)

@@ -1,5 +1,4 @@
-from match import Match
-import Montecarlo
+from src.match import Match
 
 matches = []
 
