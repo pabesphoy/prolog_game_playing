@@ -39,8 +39,7 @@ next(cell(M,N,x)) :- does(white,mark(M,N)) , true(cell(M,N,b)).
 next(cell(M,N,x)) :- true(cell(M,N,x)).
 next(cell(M,N,o)) :- does(black,mark(M,N)) , true(cell(M,N,b)).
 next(cell(M,N,o)) :- true(cell(M,N,o)).
-next(cell(M,N,b)) :- does(_, mark(J,_)) , true(cell(M,N,b)) , not(M = J).
-next(cell(M,N,b)) :- does(_, mark(_,K)) ,true(cell(M,N,b)) , not(N = K).
+next(cell(M,N,b)) :- does(_, mark(J,K)) , true(cell(M,N,b)) , (not(M = J) ; not(N = K)).
 next(control(white)) :- true(control(black)).
 next(control(black)) :- true(control(white)).
 

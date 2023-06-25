@@ -10,8 +10,8 @@ legal(R, noop) :- \+ true(control(R)).
 next(cell(X, Y, red)) :- true(cell(X, Y, red)).
 next(cell(X, Y, black)) :- true(cell(X, Y, black)).
 next(cell(1, Y, P)) :- does(P, drop(Y)), columnempty(Y).
-next(cell(X, Y, P)) :-  does(P, drop(Y)),                        height(X),                        column(Y),                        cellopen(X, Y),                        XDOWN is X-1,                        XUP is X+1,                        \+cellopen(XDOWN, Y),                        (cellopen(XUP, Y) ; \+height(XUP)).
-                        next(control(black)) :- does(red, drop(_)).
+next(cell(X, Y, P)) :-  does(P, drop(Y)), height(X), column(Y), cellopen(X, Y), XDOWN is X-1, XUP is X+1, \+cellopen(XDOWN, Y), (cellopen(XUP, Y) ; \+height(XUP)).
+next(control(black)) :- does(red, drop(_)).
 next(control(red)) :- does(black, drop(_)).
 goal(red, 100) :- line(red).
 goal(red, 50) :- \+ line(red), \+ line(black), \+ boardopen.
@@ -29,21 +29,11 @@ line(Player) :-        true(cell(M, N, Player)),        true(cell(M1, N, Player)
 terminal :- line(red).
 terminal :- line(black).
 terminal :- \+ boardopen.
-succ(1, 2).
-succ(2, 3).
-succ(3, 4).
-succ(4, 5).
-succ(5, 6).
-succ(6, 7).
-succ(7, 8).
 column(1).
 column(2).
 column(3).
 column(4).
 column(5).
-column(6).
-column(7).
-column(8).
 height(1).
 height(2).
 height(3).
