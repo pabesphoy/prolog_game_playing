@@ -4,7 +4,7 @@ from Montecarlo import Montecarlo
 
 def get_random_match_state(role, time_limit):
 
-    game = read_file_lines("connect4.pl")
+    game = read_file_lines("rules/connect4.pl")
     match = Match("c4", 10, time_limit, role, game=game)
     match = match.simulate(["nil"])
     for _ in range(11):
@@ -18,7 +18,7 @@ def get_random_match_state(role, time_limit):
     return match
 
 def get_initial_match_state():
-    game = read_file_lines("connect4.pl")
+    game = read_file_lines("rules/connect4.pl")
     match = Match("c4", 10, 10, "jugador1", game=game)
     match = match.simulate(["nil"])
 
@@ -37,14 +37,3 @@ def print_connect_4_board(match):
         for i in range(len(rows)-1, -1, -1):
             print(rows[i])
         print("----------------------------------------")
-
-'''
-match = get_random_match_state()
-print_connect_4_board(match)
-move = []
-move.append(Montecarlo(3,8).findbestmove("red", match, 60))
-move.append(match.findlegalr("black"))
-match = match.simulate(move)
-print_connect_4_board(match)
-
-'''

@@ -19,19 +19,3 @@ def print_tictactoe_board(match):
                 res+="\n|"
         print(res[:-4])
         print("----------------------------------------------")
-
-
-'''
-game = read_file_lines("tictactoe.pl")
-match = Match("tictactoe", 10, 10, "white", game=game)
-match = match.simulate(["nil"])
-print_tictactoe_board(match)
-
-while not match.findterminalp():
-    move = []
-    move.append(Montecarlo(2,30).findbestmove("white", match, 10))
-    move.append(match.findlegalr("black"))
-    match = match.simulate(move)
-    print_tictactoe_board(match)
-    print("----------------------------------------------")
-    '''

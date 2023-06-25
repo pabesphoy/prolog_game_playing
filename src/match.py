@@ -136,3 +136,9 @@ class Match:
             query.close()
             self.retract_true_and_does()
             return res
+    
+    def findbase(self):
+        query = prolog.query("base(X)")
+        res = [base["X"] for base in query]
+        query.close()
+        return res

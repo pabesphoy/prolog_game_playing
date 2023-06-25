@@ -69,28 +69,71 @@ def selectaction(match, role):
         action = input(f"Elija una acción entre 1 y {len(actions)}: \n")
     return actions[int(action.strip())-1]
 
+def preguntar_rol_ttt():
+    rol = input("¿Con qué rol desea que juegue el jugador con el algoritmo de Montecarlo?\n1: White (x)\n2: Black (o)\n")
+    while rol not in ['1', '2']:
+        rol = input("Por favor, responda '1' o '2'.\n")
+    if rol == '1':
+        rol = "white"
+    else:
+        rol = 'black'
+    return rol
+
+def preguntar_rol_cp():
+    rol = input("¿Con qué rol desea que juegue el jugador con el algoritmo de Montecarlo?\n1: Jugador 1\n2: Jugador 2\n")
+    while rol not in ['1', '2']:
+        rol = input("Por favor, responda '1' o '2'.\n")
+    if rol == '1':
+        rol = "jugador1"
+    else:
+        rol = 'jugador2'
+    return rol
+
+def preguntar_rol_c4():
+    rol = input("¿Con qué rol desea que juegue el jugador con el algoritmo de Montecarlo?\n1: Red\n2: Black\n")
+    while rol not in ['1', '2']:
+        rol = input("Por favor, responda '1' o '2'.\n")
+    if rol == '1':
+        rol = "red"
+    else:
+        rol = 'black'
+    return rol
+
+def get_state(match):
+    current_state = []
+    base = match.findbase()
+    while True:
+        for i in range(len(base)):
+            print(f"{i+1}: {base[i]}")
+        added = input("Elija un estado para añadir o escriba 'exit' para salir:\n")
+        if added == "exit":
+            break
+        elif not added.isnumeric():
+            continue
+        elif int(added) in range(1, len(base)+1):
+            current_state.append(f"true({base[int(added)-1]})")
+            base.remove(base[int(added)-1])
+        else:
+            print(f"Por favor, elija un número entre 1 y {len(base)}")
+            time.sleep(2)
+    return current_state
+
 def ejecutar_prueba(prueba, juego):
     def ttt_p_vs_ia():
-        rol = input("¿Con qué rol desea jugar?\n1: White (x)\n2: Black (o)\n")
-        while rol not in ['1', '2']:
-            rol = input("Por favor, responda '1' o '2'.\n")
-        if rol == '1':
-            rol = "white"
-        else:
-            rol = 'black'
+        rol = preguntar_rol_ttt()
         time_limit = preguntar_tiempo_limite()
-        game = read_file_lines("tictactoe.pl")
+        game = read_file_lines("rules/tictactoe.pl")
         match = Match("tictactoe", 10, time_limit, rol, game=game)
         match = match.simulate(["nil"])
         print_tictactoe_board(match)
         while not match.findterminalp():
             move = []
             if rol == 'white':
-                move.append(selectaction(match, rol))
-                move.append(Montecarlo(2,30).findbestmove("black", match))
+                move.append(selectaction(match, "black"))
+                move.append(Montecarlo(2,30).findbestmove(rol, match))
             else:
-                move.append(selectaction(match, rol))
-                move.append(Montecarlo(2,30).findbestmove("white", match))
+                move.append(selectaction(match, "white"))
+                move.append(Montecarlo(2,30).findbestmove(rol, match))
             match = match.simulate(move)
             print_tictactoe_board(match)
 
@@ -104,7 +147,7 @@ def ejecutar_prueba(prueba, juego):
         else:
             rol = 'black'
         time_limit = preguntar_tiempo_limite()
-        game = read_file_lines("tictactoe.pl")
+        game = read_file_lines("rules/tictactoe.pl")
         match = Match("tictactoe", 10, time_limit, rol, game=game)
         match = match.simulate(["nil"])
         print_tictactoe_board(match)
@@ -120,43 +163,43 @@ def ejecutar_prueba(prueba, juego):
             print_tictactoe_board(match)
 
     def ttt_best_move():
-        pass
+        print("Ha accedido al menú de introducción de un estado de partida. Recuerde introducir un estado plausible y no terminal para un funcionamiento adecuado.")
+        rol = preguntar_rol_ttt()
+        time_limit = preguntar_tiempo_limite()
+        game = read_file_lines("rules/tictactoe.pl")
+        match = Match("tictactoe", 10, time_limit, rol, game=game)
+        match = match.simulate(["nil"])
+        current_state = get_state(match)
+        match = Match("tictactoe", 10, time_limit, rol, game=game, current_state=current_state)
+        print_tictactoe_board(match)
+        try:
+            print(Montecarlo(2,30).findbestmove(rol, match))
+        except:
+            print("Estado no válido")
 
     def cp_p_vs_ia():
-        rol = input("¿Con qué rol desea jugar?\n1: Jugador 1\n2: Jugador 2\n")
-        while rol not in ['1', '2']:
-            rol = input("Por favor, responda '1' o '2'.\n")
-        if rol == '1':
-            rol = "jugador1"
-        else:
-            rol = 'jugador2'
+        rol = preguntar_rol_cp()
         time_limit = preguntar_tiempo_limite()
-        game = read_file_lines("chopsticks.pl")
+        game = read_file_lines("rules/chopsticks.pl")
         match = Match("chopsticks", 10, time_limit, rol, game=game)
         match = match.simulate(["nil"])
         print_chopsticks_game(match)
         while not match.findterminalp():
             move = []
             if rol == 'jugador1':
-                move.append(selectaction(match, rol))
-                move.append(Montecarlo(2,30).findbestmove("jugador2", match))
+                move.append(selectaction(match, "jugador2"))
+                move.append(Montecarlo(2,30).findbestmove(rol, match))
             else:
-                move.append(selectaction(match, rol))
-                move.append(Montecarlo(2,30).findbestmove("jugador1", match))
+                move.append(selectaction(match, "jugador1"))
+                move.append(Montecarlo(2,30).findbestmove(rol, match))
             match = match.simulate(move)
             print_chopsticks_game(match)
 
     def cp_ia_vs_ia():
         print("Va a presenciar una partida entre dos jugadores artificiales. Un jugador usará el algoritmo de Montecarlo. Otro jugará movimientos aleatorios.")
-        rol = input("¿Con qué rol desea que juegue el jugador con el algoritmo de Montecarlo?\n1: Jugador 1\n2: Jugador 2\n")
-        while rol not in ['1', '2']:
-            rol = input("Por favor, responda '1' o '2'.\n")
-        if rol == '1':
-            rol = "jugador1"
-        else:
-            rol = 'jugador2'
+        rol = preguntar_rol_cp()
         time_limit = preguntar_tiempo_limite()
-        game = read_file_lines("chopsticks.pl")
+        game = read_file_lines("rules/chopsticks.pl")
         match = Match("chopsticks", 10, time_limit, rol, game=game)
         match = match.simulate(["nil"])
         print_chopsticks_game(match)
@@ -172,16 +215,22 @@ def ejecutar_prueba(prueba, juego):
             print_chopsticks_game(match)
 
     def cp_best_move():
-        pass
+        print("Ha accedido al menú de introducción de un estado de partida. Recuerde introducir un estado plausible y no terminal para un funcionamiento adecuado.")
+        rol = preguntar_rol_cp()
+        time_limit = preguntar_tiempo_limite()
+        game = read_file_lines("rules/chopsticks.pl")
+        match = Match("chopsticks", 10, time_limit, rol, game=game)
+        match = match.simulate(["nil"])
+        current_state = get_state(match)
+        match = Match("chopsticks", 10, time_limit, rol, game=game, current_state=current_state)
+        print_chopsticks_game(match)
+        try:
+            print(Montecarlo(2,30).findbestmove(rol, match))
+        except:
+            print("Estado no válido")
 
     def c4_random_state_best_move():
-        rol = input("¿Con qué rol desea que juegue el jugador con el algoritmo de Montecarlo?\n1: Red\n2: Black\n")
-        while rol not in ['1', '2']:
-            rol = input("Por favor, responda '1' o '2'.\n")
-        if rol == '1':
-            rol = "red"
-        else:
-            rol = 'black'
+        rol = preguntar_rol_c4()
         time_limit = preguntar_tiempo_limite()
         match = get_random_match_state(rol, time_limit)
         print("Estado aleatorio: ")
@@ -197,7 +246,19 @@ def ejecutar_prueba(prueba, juego):
         print_connect_4_board(match)
 
     def c4_given_state_best_move():
-        pass
+        print("Ha accedido al menú de introducción de un estado de partida. Recuerde introducir un estado plausible y no terminal para un funcionamiento adecuado.")
+        rol = preguntar_rol_c4()
+        time_limit = preguntar_tiempo_limite()
+        game = read_file_lines("rules/connect4.pl")
+        match = Match("connect4", 10, time_limit, rol, game=game)
+        match = match.simulate(["nil"])
+        current_state = get_state(match)
+        match = Match("connect4", 10, time_limit, rol, game=game, current_state=current_state)
+        print_connect_4_board(match)
+        try:
+            print(Montecarlo(3,8).findbestmove(rol, match))
+        except:
+            print("Estado no válido")
 
     if prueba == '1' and juego == '1':
         ttt_p_vs_ia()
@@ -213,7 +274,7 @@ def ejecutar_prueba(prueba, juego):
         cp_best_move()
     elif prueba == '1' and juego == '3':
         c4_random_state_best_move()
-    elif prueba == '1' and juego == '3':
+    elif prueba == '2' and juego == '3':
         c4_given_state_best_move()
 
     
