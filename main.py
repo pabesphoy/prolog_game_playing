@@ -26,7 +26,7 @@ def preguntar_reglas(juego):
     while True:
         if reglas.strip().lower() == 's':
             if juego == '1': print("Tic-Tac-Toe, o tres en raya, es un juego de mesa en el que dos jugadores se turnan para marcar casillas vacías en un tablero de 3x3, con el objetivo de alinear tres de sus símbolos en línea horizontal, vertical o diagonal antes que el oponente.")
-            elif juego == '2': print("Chopsticks es un juego popular cuyo objetivo es eliminar ambas manos del oponente. Una mano se elimina cuando sus dedos levantados igualan o superan 5. Los jugadores toman turnos para añadir los dedos de una de sus manos a una mano del oponente. Además, podemos usar nuestro turno para revivir una de nuestras manos repartiendo equitativamente los dedos de nuestra mano viva siempre que estos sean pares.")
+            elif juego == '2': print("Chopsticks es un juego popular cuyo objetivo es eliminar ambas manos del oponente. Una mano se elimina cuando sus dedos levantados igualan o superan 5. Los jugadores toman turnos para añadir los dedos de una de sus manos a una mano del oponente. Además, podemos usar nuestro turno para revivir una de nuestras manos repartiendo equitativamente los dedos de nuestra mano viva siempre que estos sean pares. Si ambos jugadores siguen vivos tras 30 turnos, se declaran tablas.")
             elif juego == '3': print("El Connect 4 es un juego de mesa en el que dos jugadores se turnan para dejar caer fichas de su color (rojo y negro) en una cuadrícula vertical de 6 filas y 5 columnas, con el objetivo de ser el primero en alinear cuatro de sus fichas en línea horizontal, vertical o diagonal antes que el oponente.")
             else: raise Exception("Juego no existente.")
             time.sleep(4)
@@ -50,11 +50,11 @@ def preguntar_prueba(juego):
     return prueba.strip().lower()
     
 def preguntar_tiempo_limite():
-    time_limit = input("¿Cuál será el tiempo límite de la IA para seguir analizando movimientos? Escriba un número entre 10 y 200, o pulse intro para no dar límite.\n")
+    time_limit = input("¿Cuál será el tiempo límite de la IA para seguir analizando movimientos? Escriba un número entre 1 y 200, o pulse intro para no dar límite.\n")
     if time_limit.strip() == "":
         return None
-    while not time_limit.strip().isnumeric() or int(time_limit.strip()) < 10 or int(time_limit.strip()) > 200:
-        time_limit = input("Por favor, un número entre 10 y 200 o pulse intro.\n")
+    while not time_limit.strip().isnumeric() or int(time_limit.strip()) < 1 or int(time_limit.strip()) > 200:
+        time_limit = input("Por favor, un número entre 1 y 200 o pulse intro.\n")
     if time_limit.strip() == "":
         return None
     else:
@@ -173,7 +173,7 @@ def ejecutar_prueba(prueba, juego):
         match = Match("tictactoe", 10, time_limit, rol, game=game, current_state=current_state)
         print_tictactoe_board(match)
         try:
-            print(Montecarlo(2,30).findbestmove(rol, match))
+            print("La mejor acción en este estado es:", Montecarlo(2,30).findbestmove(rol, match))
         except:
             print("Estado no válido")
 
@@ -202,6 +202,7 @@ def ejecutar_prueba(prueba, juego):
         game = read_file_lines("rules/chopsticks.pl")
         match = Match("chopsticks", 10, time_limit, rol, game=game)
         match = match.simulate(["nil"])
+        print(match.current_state)
         print_chopsticks_game(match)
         while not match.findterminalp():
             move = []
@@ -213,6 +214,7 @@ def ejecutar_prueba(prueba, juego):
                 move.append(Montecarlo(2,30).findbestmove("jugador2", match))
             match = match.simulate(move)
             print_chopsticks_game(match)
+            print(match.current_state)
 
     def cp_best_move():
         print("Ha accedido al menú de introducción de un estado de partida. Recuerde introducir un estado plausible y no terminal para un funcionamiento adecuado.")
@@ -225,7 +227,7 @@ def ejecutar_prueba(prueba, juego):
         match = Match("chopsticks", 10, time_limit, rol, game=game, current_state=current_state)
         print_chopsticks_game(match)
         try:
-            print(Montecarlo(2,30).findbestmove(rol, match))
+            print("La mejor acción en este estado es:", Montecarlo(2,30).findbestmove(rol, match))
         except:
             print("Estado no válido")
 
@@ -237,11 +239,14 @@ def ejecutar_prueba(prueba, juego):
         print_connect_4_board(match)
         move = []
         if rol == 'red':
+            action = Montecarlo(3,8).findbestmove("red", match)
             move.append(match.findlegalr("black"))
-            move.append(Montecarlo(3,8).findbestmove("red", match))
+            move.append(action)
         else:
+            action = Montecarlo(3,8).findbestmove("black", match)
             move.append(match.findlegalr("red"))
-            move.append(Montecarlo(3,8).findbestmove("black", match))
+            move.append(action)
+        print("La mejor acción en este estado es:", action)
         match = match.simulate(move)
         print_connect_4_board(match)
 

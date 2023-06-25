@@ -12,9 +12,12 @@ fingers(2).
 fingers(3).
 fingers(4).
 
+maxturns(30).
+
 base(handup(R, H, F)) :- role(R), handof(R,H), fingers(F).
 base(control(jugador1)).
 base(control(jugador2)).
+base(turn(N)) :- maxturns(M), N < M.
 
 input(R, hit(H1, H2)) :- role(R), handof(R,H1), \+handof(R,H2).
 input(R, revive) :- role(R).
@@ -22,6 +25,7 @@ input(R, noop) :- role(R).
 
 init(handup(R, H, 1)) :- role(R), handof(R,H).
 init(control(jugador1)).
+init(turn(0)).
 
 legal(R, hit(H1, H2)) :- true(control(R)), alive(H1), alive(H2), input(R, hit(H1,H2)).
 legal(jugador1, revive) :- true(control(jugador1)), 
@@ -70,8 +74,9 @@ next(handup(jugador2, H, 2)) :- does(jugador2, revive), true(handup(jugador2, ri
 next(handup(jugador2, H, 1)) :- does(jugador2, revive), true(handup(jugador2, rightj2, F1)), true(handup(jugador2, leftj2, F2)), (F1 + F2 =:= 2), handof(jugador2,H). 
 next(control(jugador1)) :- true(control(jugador2)).
 next(control(jugador2)) :- true(control(jugador1)).
+next(turn(N1)) :- true(turn(N)), N1 is N+1.
 
-terminal :- \+ j1alive ; \+ j2alive.
+terminal :- \+ j1alive ; \+ j2alive; true(turn(N)), maxturns(N).
 
 goal(jugador1, 100) :- \+ j2alive.
 goal(jugador1, 50) :- j1alive, j2alive.
