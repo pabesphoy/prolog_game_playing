@@ -74,7 +74,7 @@ class Montecarlo:
             
     def montecarlo(self, role, state, count):
         total = 0
-        for _ in range(count): #Simulaciones por estado final
+        for _ in range(count):
             total = total + self.depthcharge(role,state)
         return total/count
 

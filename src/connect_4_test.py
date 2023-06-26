@@ -37,3 +37,19 @@ def print_connect_4_board(match):
         for i in range(len(rows)-1, -1, -1):
             print(rows[i])
         print("----------------------------------------")
+
+def print_connect_4_board_6_7(match):
+        rows = []
+        for i in range(1,7):
+            row = "|"
+            for j in range(1,8):
+                if f"true(cell({i}, {j}, red))" in match.current_state:
+                    row += "r |"
+                elif f"true(cell({i}, {j}, black))" in match.current_state:
+                    row += "b |"
+                else:
+                    row += "  |"
+            rows.append(row)
+        for i in range(len(rows)-1, -1, -1):
+            print(rows[i])
+        print("----------------------------------------")
