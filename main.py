@@ -213,7 +213,6 @@ def ejecutar_prueba(prueba, juego):
                 move.append(Montecarlo(2,30).findbestmove("jugador2", match))
             match = match.simulate(move)
             print_chopsticks_game(match)
-            print(match.current_state)
 
     def cp_best_move():
         print("Ha accedido al menú de introducción de un estado de partida. Recuerde introducir un estado plausible y no terminal para un funcionamiento adecuado.")
