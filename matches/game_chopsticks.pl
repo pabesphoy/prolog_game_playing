@@ -9,7 +9,7 @@ fingers(1).
 fingers(2).
 fingers(3).
 fingers(4).
-maxturns(10).
+maxturns(30).
 base(handup(R, H, F)) :- role(R), handof(R,H), fingers(F).
 base(control(jugador1)).
 base(control(jugador2)).

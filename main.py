@@ -202,7 +202,6 @@ def ejecutar_prueba(prueba, juego):
         game = read_file_lines("rules/chopsticks.pl")
         match = Match("chopsticks", 10, time_limit, rol, game=game)
         match = match.simulate(["nil"])
-        print(match.current_state)
         print_chopsticks_game(match)
         while not match.findterminalp():
             move = []
